@@ -98,8 +98,16 @@ https://api.openweathermap.org/data/2.5/weather?q=Bangkok&appid=YOUR_API_KEY&uni
 
 > ✅ **Checkpoint 1.2** บันทึกด้านล่างว่านักศึกษาเลือกทดสอบกรณีใด คาดการณ์ Status Code ไว้ว่าอะไร และ Status Code จริงที่ได้คืออะไร (ตรงหรือไม่ตรงกับที่คาดไว้) พร้อมอธิบายว่าผลลัพธ์ที่ได้ตรงกับช่วง Status Code ใดตามตารางในบทเรียนหัวข้อ 6.3
 
+ภาพผลลัพธ์
+<img width="1013" height="132" alt="image" src="https://github.com/user-attachments/assets/bf2539b2-77ec-4cbe-809e-14fa4ccc2a18" />
+
+<img width="893" height="373" alt="image" src="https://github.com/user-attachments/assets/73e922dc-336a-46de-9a92-b6ad3c3a786b" />
+
+
 ```text
-บันทึกรูปและคำตอบที่นี่
+กรณีที่เลือกทดสอบ: เปลี่ยนชื่อเมืองในพารามิเตอร์ q เป็นชื่อเมืองที่ไม่มีอยู่จริง (เช่น q=NonExistentCity12345)
+การคาดการณ์ Status Code: คาดว่าจะได้ 404 Not Found เพราะเซิร์ฟเวอร์จะไม่พบข้อมูลสภาพอากาศของเมืองนี้ในระบบ
+Status Code จริงที่ได้: 404 Not Found 
 ```
 ---
 
