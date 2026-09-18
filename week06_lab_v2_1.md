@@ -519,14 +519,22 @@ GET https://fakestoreapi.com/products
 
 ไม่ว่าจะเลือกแบบไหน เป้าหมายคือต้องเห็น **ผลลัพธ์จริงจาก Fake Store API** ปรากฏขึ้นมา  ถ้ารันแล้วเจอ error หรือโค้ดจาก Gemini ผิดพลาด (เช่น import ขาด, ชื่อ field ไม่ตรงกับ JSON จริง) ให้จดบันทึกข้อความ error และวิธีแก้ไขไว้ในด้านล่าง
 
+ผลลัพธ์ error
+<img width="877" height="175" alt="image" src="https://github.com/user-attachments/assets/0aed056b-b782-42ab-a439-7c9c022d75a9" />
+
+วิธีแก้ไข
 ```text
-บันทึก error และการแก้ไขที่นี่
+สาเหตุของ Error:
+เกิดจากโค้ดใน Model เขียนรับค่าราคาแบบ Cast โดยตรง เช่น json['price'] as double แต่ข้อมูลราคาบางรายการใน JSON จาก Fake Store API ถูกส่งมาเป็นจำนวนเต็ม (int) เช่น 109 ทำให้ Dart ไม่สามารถ Cast เปลี่ยน Type เป็น double โดยตรงได้ จึงเกิด Runtime Exception
+วิธีแก้ไข:
+ให้แก้ไขในไฟล์ lib/services/ai_product_service.dart ตรงส่วน factory AiProduct.fromJson โดยแปลงประเภทข้อมูลผ่าน num ก่อน แล้วเรียกใช้ฟังก์ชัน .toDouble() เพื่อให้รองรับได้ทั้งจำนวนเต็ม (int) และทศนิยม (double)
 ```
 
 > ✅ **Checkpoint 4.2** ถ่ายภาพหน้าจอ Debug Console ที่แสดงผลลัพธ์จริงจากการเรียก `fetchAiProducts()` (เช่น รายการสินค้าที่ print ออกมา) 
-```text
+
 บันทึกรูปที่นี่
-```
+<img width="1157" height="581" alt="image" src="https://github.com/user-attachments/assets/101c2a8a-850e-4276-8c3e-097b5089a47a" />
+
 
 ---
 
