@@ -384,6 +384,10 @@ class MyApp extends StatelessWidget {
 ค้นหาเมืองที่ไม่มีจริง
 <img width="1307" height="1002" alt="image" src="https://github.com/user-attachments/assets/70c70001-76a5-4fd3-85f0-98a0372a9f2e" />
 
+ปิดเน็ตแล้วค้นหา
+<img width="1917" height="1077" alt="image" src="https://github.com/user-attachments/assets/48db0537-6571-4aaa-8a61-0b122f49c6a7" />
+
+
 
 
 ---
