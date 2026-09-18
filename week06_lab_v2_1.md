@@ -593,9 +593,11 @@ Future<Weather> fetchWeatherWithDio(String city) async {
 2. รูปแบบการเขียน query parameters (`queryParameters: {...}`) ต่างจากการต่อ string URL เองแบบที่ทำใน `WeatherService` (ขั้นตอนที่ 2.3) 
 
 > ✅ **Checkpoint 5.1** ถ่ายภาพหน้าจอ Debug Console ที่แสดงผลลัพธ์จริงจากการเรียก `fetchWeatherWithDio()` (ค่าทั้ง 4 ฟิลด์ของ `Weather` ที่ print ออกมา หรือแสดงผลบนหน้าจอถ้าเลือกแบบที่ 2)
-```text
+
 บันทึกรูปที่นี่
-```
+<img width="856" height="253" alt="image" src="https://github.com/user-attachments/assets/60b4ecc1-1cbe-4c5d-8eed-a62e1bcd8d41" />
+
+
 ### ขั้นตอนที่ 5.4 — 🧠 คิดเอง/ออกแบบเอง
 
 `DioException` มีหลายชนิด (`DioExceptionType`) แต่โค้ดในขั้นตอนที่ 5.2 จัดการเฉพาะ `connectionTimeout` ด้านล่างเป็นตัวอย่างการเพิ่มเงื่อนไขให้อีก 1 ชนิด (`badResponse`) ให้ดูเป็นแนวทาง จากนั้นให้เพิ่มเงื่อนไข `else if` อีกอย่างน้อย 1 ชนิดด้วยตัวเอง โดยเลือกจาก `DioExceptionType.receiveTimeout` หรือ `DioExceptionType.connectionError` (ห้ามซ้ำกับ `badResponse` ที่ให้เป็นตัวอย่างแล้ว) พร้อมข้อความแจ้งเตือนภาษาไทยที่เหมาะสมกับสาเหตุนั้นโดยเฉพาะ (ค้นคว้าความหมายของแต่ละชนิดได้จากเอกสารของแพ็กเกจ `dio` บน pub.dev)
@@ -616,15 +618,38 @@ Future<Weather> fetchWeatherWithDio(String city) async {
 
 > ✅ **Checkpoint 5.2** เปรียบเทียบสั้น ๆ ระหว่าง `http` กับ `dio` อย่างน้อย 3 ประเด็น โดยอ้างอิงจากสิ่งที่สังเกตได้จริงตอนทดลองในขั้นตอนที่ 5.3 เช่น การแปลง JSON อัตโนมัติ, การกำหนด Query Parameters, และรูปแบบการจัดการ Exception (`DioException` เทียบกับการดักจับหลายชนิดแยกกันแบบ `http`)
 
-```text
-บันทึกคำตอบที่นี่
-```
+### 📊 สรุปการเปรียบเทียบระหว่าง `http` และ `dio` Package
+
+| ประเด็นการเปรียบเทียบ | `http` Package | `dio` Package |
+| :--- | :--- | :--- |
+| **1. การแปลงข้อมูล JSON** | ต้องเรียกใช้ `jsonDecode(response.body)` เพื่อแปลง String เป็น Map ด้วยตัวเองก่อนใช้งาน | มีระบบ Auto JSON Decoding โดยแปลงเป็น Map ให้อัตโนมัติและดึงไปใช้งานผ่าน `response.data` ได้ทันที |
+| **2. การกำหนด Query Parameters** | ต้องใช้วิธีต่อ String ใน URL เอง หรือใช้ `Uri.https()` กำหนด `queryParameters` แยกต่างหาก | รองรับการส่ง `queryParameters: {...}` ผ่านตัวแปร Map เข้าไปในเมธอด `.get()` ได้โดยตรง ทำให้โค้ดอ่านง่าย |
+| **3. รูปแบบการจัดการ Exception** | ต้องเขียนดักจับแยกหลาย Exception ชนิดรวมกัน เช่น `TimeoutException`, `ClientException`, และ `FormatException` | รวบรวม Error ทางเครือข่ายทั้งหมดไว้ภายใต้ `DioException` คลาสเดียว แล้วใช้วิธีเช็กประเภทผ่าน `e.type` (`DioExceptionType`) |
+
 >
 > ✅ **Checkpoint 5.3** แสดงโค้ดเงื่อนไข `DioExceptionType` เพิ่มเติมที่เขียนเองในขั้นตอนที่ 5.4 
-
 ```text
-บันทึกคำตอบที่นี่
+### 🛠️ โค้ดการจัดการ DioException (ขั้นตอนที่ 5.4)
+
+```dart
+  } on DioException catch (e) {
+    if (e.type == DioExceptionType.connectionTimeout) {
+      throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
+    } else if (e.type == DioExceptionType.badResponse) {
+      // ตอบกลับผิดพลาดจากฝั่งเซิร์ฟเวอร์ (เช่น 404 ไม่พบเมือง หรือ 401 API Key ไม่ถูกต้อง)
+      throw Exception('เซิร์ฟเวอร์ตอบกลับผิดพลาด (${e.response?.statusCode})');
+    } else if (e.type == DioExceptionType.receiveTimeout) {
+      // รอนานเกินเวลาที่กำหนดในการรับข้อมูลตอบกลับจากเซิร์ฟเวอร์
+      throw Exception('การรับข้อมูลจากเซิร์ฟเวอร์ใช้เวลานานเกินกำหนด');
+    } else if (e.type == DioExceptionType.connectionError) {
+      // ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ เช่น ปิดเน็ต หรือ IP/Domain มีปัญหา
+      throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ต');
+    }
+
+    throw Exception('เกิดข้อผิดพลาด: ${e.message}');
+  }
 ```
+
 ---
 
 ## ส่วนที่ 7: ต่อยอดเข้าสู่โปรเจกต์ Campus Marketplace
